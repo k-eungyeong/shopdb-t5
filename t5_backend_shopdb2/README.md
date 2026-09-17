@@ -20,3 +20,27 @@
 ## 작업 규칙
 - 본인 담당 기능은 `routers/본인기능.py` 파일로 새로 만들어서 작업
 - `main.py`는 라우터 등록(import + include_router) 2줄만 추가
+
+## 리뷰 API
+서버 실행 후 `http://127.0.0.1:8000/docs`에서 아래 API를 테스트할 수 있습니다.
+
+- `POST /api/reviews`: 리뷰 작성
+- `GET /api/products/{product_id}/reviews`: 상품별 리뷰 목록
+- `GET /api/products/{product_id}/reviews/summary`: 상품 평점 통계
+- `GET /api/users/me/reviews`: 로그인 사용자 작성 리뷰 목록
+- `GET /api/reviews/{review_id}`: 리뷰 상세 조회
+- `PATCH /api/reviews/{review_id}`: 작성자 리뷰 수정
+- `DELETE /api/reviews/{review_id}`: 로그인 작성자 리뷰 삭제
+
+리뷰 작성·내 리뷰 조회·수정·삭제 API는 `Authorization: Bearer JWT토큰`이
+필요합니다. `user_id`는 요청으로 받지 않고 검증된 JWT의 `sub` 값에서 가져옵니다.
+
+로그인 API를 추가하기 전 테스트용 토큰은 프로젝트 폴더에서 아래처럼 만들 수 있습니다.
+
+```powershell
+uv run python -c "from auth.security import create_access_token; print(create_access_token(4, 'buyer'))"
+```
+
+출력된 토큰을 Swagger의 `Authorize` 버튼에 입력한 뒤 보호된 API를 테스트합니다.
+실제 로그인 기능을 만들 때는 비밀번호 확인에 성공한 후
+`create_access_token(user_id, role)`을 호출하여 같은 형식의 토큰을 반환하면 됩니다.
