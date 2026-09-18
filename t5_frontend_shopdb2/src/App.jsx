@@ -1,11 +1,20 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
 
+
 function App() {
   const [count, setCount] = useState(0)
+  const [status, setStatus] = useState('연결 확인 중...')
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/`)
+      .then(res => res.json())
+      .then(data => setStatus(`백엔드 연결 성공: ${data.status}`))
+      .catch(() => setStatus('백엔드 연결 실패'))
+  }, [])
 
   return (
     <>
@@ -16,6 +25,7 @@ function App() {
           <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
         <div>
+          <p>{status}</p>
           <h1>Get started</h1>
           <p>
             Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
