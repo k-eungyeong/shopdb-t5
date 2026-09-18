@@ -40,8 +40,7 @@ def create_review(item: ReviewCreate):
                SELECT
                   oi.order_item_id,
                   oi.product_id,
-                  o.buyer_user_id,
-                  o.order_status
+                  o.buyer_user_id
                 FROM order_items AS oi
                 INNER JOIN orders AS o
                     ON o.order_id = oi.order_id
@@ -68,11 +67,9 @@ def create_review(item: ReviewCreate):
                 detail="주문상품과 리뷰 상품이 일치하지 않습니다.",
             )
 
-        if order_item["order_status"] not in ("DELIVERED", "COMPLETED"):
-         raise HTTPException(
-        status_code=400,
-        detail="배송 완료 또는 구매 확정된 주문상품만 리뷰를 작성할 수 있습니다.",
-    )
+        # 배송 상태(배송중/배송완료/구매확정)는 확인하지 않습니다.
+        # order_items에 실제 구매 내역이 존재하고,
+        # 구매자(user_id)와 상품(product_id)이 일치하면 구매 직후 바로 리뷰를 작성할 수 있습니다.
 
         # order_item_id에는 UNIQUE 제약조건이 있으므로 중복 여부를 먼저 확인합니다.
         existing = conn.execute(
