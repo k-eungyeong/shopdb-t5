@@ -20,3 +20,12 @@
 ## 작업 규칙
 - 본인 담당 기능은 `routers/본인기능.py` 파일로 새로 만들어서 작업
 - `main.py`는 라우터 등록(import + include_router) 2줄만 추가
+
+## 리뷰 API
+- `POST /reviews` : 리뷰 등록
+- `GET /reviews` : 리뷰 전체 조회
+- `GET /reviews/product/{product_id}` : 상품별 리뷰 및 평균 평점 조회
+- `GET /reviews/{review_id}` : 리뷰 상세 조회
+- `PATCH /reviews/{review_id}` : 리뷰 수정
+- `DELETE /reviews/{review_id}?user_id=4` : 리뷰 삭제
+- Swagger 테스트 주소: `http://127.0.0.1:8000/docs`
