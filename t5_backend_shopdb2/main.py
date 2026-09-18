@@ -3,14 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from database import engine
-from routers import cart, wishlist
+from routers import cart, review, wishlist
 
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React 개발 서버 주소 (CRA 기본값, Vite면 5173)
+    # 3306은 MySQL 포트입니다. Vite React 개발 서버는 보통 5173을 사용합니다.
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,6 +19,7 @@ app.add_middleware(
 
 app.include_router(cart.router)
 app.include_router(wishlist.router)
+app.include_router(review.router)
 
 
 @app.get("/")
