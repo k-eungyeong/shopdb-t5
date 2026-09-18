@@ -10,7 +10,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3306"],  # React 개발 서버 주소 (CRA 기본값, Vite면 5173)
+    allow_origins=["http://localhost:5173"],  # React 개발 서버 주소 (CRA 기본값, Vite면 5173)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
