@@ -1,0 +1,32 @@
+.home__banner {
+  background: linear-gradient(135deg, #1f6feb 0%, #6ea8fe 100%);
+  color: #fff;
+  border-radius: 16px;
+  padding: 48px 32px;
+  margin-bottom: 36px;
+  text-align: center;
+}
+
+.home__banner h1 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+
+.home__banner p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.home__section-title {
+  font-size: 18px;
+  margin-bottom: 16px;
+  border-left: 4px solid #1f6feb;
+  padding-left: 10px;
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+}
