@@ -17,11 +17,10 @@ import {
   updateAdminSellerStatus,
   deleteAdminReview,
 } from "../api/shopApi";
+import { money, statusText as orderStatus } from "../utils/format";
 import "./Center.css";
 
-const money = (v) => `${Number(v || 0).toLocaleString("ko-KR")}원`;
 const dateText = (v) => String(v || "").slice(0, 10);
-const orderStatus = { PAID:"결제완료", PREPARING:"상품준비중", SHIPPING:"배송중", DELIVERED:"배송완료", COMPLETED:"구매완료", PAYMENT_PENDING:"결제대기", CANCELLED:"취소", REFUNDED:"환불", ORDERED:"주문완료" };
 
 const tabs = [
   ["dashboard", "▦", "대시보드"], ["members", "👥", "회원 관리"], ["sellers", "🏪", "판매자 관리"],

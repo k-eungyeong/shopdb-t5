@@ -7,20 +7,9 @@ import {
   getOrderDetail,
   requestRefund,
 } from "../api/shopApi";
+import { money, statusText } from "../utils/format";
+import ErrorState from "../components/ErrorState";
 import "./Orders.css";
-
-const money = (v) => Number(v || 0).toLocaleString("ko-KR") + "원";
-const statusText = {
-  ORDERED: "주문완료",
-  PAYMENT_PENDING: "결제대기",
-  PAID: "결제완료",
-  PREPARING: "상품준비중",
-  SHIPPING: "배송중",
-  DELIVERED: "배송완료",
-  COMPLETED: "구매완료",
-  CANCELLED: "취소",
-  REFUNDED: "환불",
-};
 
 const deliverySteps = [
   { key: "PAID", label: "결제완료" },
@@ -151,7 +140,7 @@ function OrderDetail() {
   }
 
   if (error && !order) {
-    return <div className="orders-page"><div className="shop-state shop-state--error">{error}</div></div>;
+    return <div className="orders-page"><ErrorState message={error} onRetry={load} /></div>;
   }
   if (!order) return <div className="shop-state">주문 상세를 불러오는 중입니다...</div>;
 
@@ -164,7 +153,7 @@ function OrderDetail() {
         <p>{order.order_no}</p>
       </div>
 
-      {error && <div className="shop-state shop-state--error">{error}</div>}
+      <ErrorState message={error} onRetry={load} />
 
       <section className="order-detail-card">
         <div className="order-detail-card__head">

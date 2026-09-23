@@ -1,0 +1,16 @@
+/* 여러 화면에서 재사용하는 로딩 스켈레톤(회색 뼈대) 스타일입니다. */
+@keyframes skeleton-shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
+.skeleton-block{border-radius:10px;background:#eef0f3;background-image:linear-gradient(90deg,#eef0f3 0px,#f7f8fa 40px,#eef0f3 80px);background-size:200px 100%;background-repeat:no-repeat;animation:skeleton-shimmer 1.3s ease-in-out infinite}
+
+.skeleton-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:1000px){.skeleton-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.skeleton-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+.skeleton-card{background:#fff;border:1px solid #e6e9ee;border-radius:18px;overflow:hidden}
+.skeleton-card__image{aspect-ratio:1/1;border-radius:0}
+.skeleton-card__body{padding:14px;display:flex;flex-direction:column;gap:9px}
+.skeleton-card__body .skeleton-block:nth-child(1){width:40%;height:11px}
+.skeleton-card__body .skeleton-block:nth-child(2){width:80%;height:15px}
+.skeleton-card__body .skeleton-block:nth-child(3){width:55%;height:19px;margin-top:4px}
+
+.skeleton-row{display:flex;flex-direction:column;gap:12px}
+.skeleton-row .skeleton-block{height:96px;border-radius:16px}

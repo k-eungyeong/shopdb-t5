@@ -10,9 +10,10 @@ import {
   getReviewEligibility,
 } from "../api/shopApi";
 import { useAuth } from "../auth/AuthContext";
+import { money } from "../utils/format";
+import ErrorState from "../components/ErrorState";
+import EmptyState from "../components/EmptyState";
 import "./ProductDetail.css";
-
-const money = (value) => Number(value || 0).toLocaleString("ko-KR") + "원";
 
 function ProductDetail() {
   const { id } = useParams();
@@ -55,20 +56,23 @@ function ProductDetail() {
     }
   }
 
-  useEffect(() => {
-    async function load() {
-      try {
-        setLoading(true);
-        setError("");
-        await loadPage();
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  // 재시도 버튼에서도 다시 쓸 수 있도록 로딩 함수를 useEffect 밖으로 뺐습니다.
+  async function load() {
+    try {
+      setLoading(true);
+      setError("");
+      await loadPage();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     load();
     // id 또는 로그인 회원이 바뀌면 현재 사용자의 구매/리뷰 가능 여부를 다시 검사합니다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   const selectedVariant = useMemo(
@@ -155,7 +159,7 @@ function ProductDetail() {
   if (error || !product) {
     return (
       <div className="product-detail__not-found">
-        <p>{error || "상품을 찾을 수 없습니다."}</p>
+        <ErrorState message={error || "상품을 찾을 수 없습니다."} onRetry={error ? load : undefined} />
         <Link to="/">홈으로 돌아가기</Link>
       </div>
     );
@@ -270,7 +274,7 @@ function ProductDetail() {
         </div>
 
         {product.reviews.length === 0 ? (
-          <p className="product-reviews__empty">아직 작성된 리뷰가 없습니다.</p>
+          <EmptyState icon="★" title="아직 작성된 리뷰가 없습니다" description="이 상품을 구매하고 첫 리뷰를 남겨보세요." />
         ) : (
           product.reviews.map((review) => (
             <article key={review.review_id}>

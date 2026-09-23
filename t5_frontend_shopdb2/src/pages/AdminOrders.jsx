@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   bulkUpdateAdminShippingStatus,
   correctAdminDeliveredToShipping,
@@ -6,21 +7,8 @@ import {
   updateAdminShippingStatus,
 } from "../api/shopApi";
 import { useAuth } from "../auth/AuthContext";
+import { money, statusText } from "../utils/format";
 import "./AdminOrders.css";
-
-const money = (v) => Number(v || 0).toLocaleString("ko-KR") + "원";
-
-const statusText = {
-  ORDERED: "주문완료",
-  PAYMENT_PENDING: "결제대기",
-  PAID: "결제완료",
-  PREPARING: "상품준비중",
-  SHIPPING: "배송중",
-  DELIVERED: "배송완료",
-  COMPLETED: "구매완료",
-  CANCELLED: "취소",
-  REFUNDED: "환불",
-};
 
 const shippingRank = { PAID: 0, PREPARING: 1, SHIPPING: 2, DELIVERED: 3 };
 const mutableStatuses = ["PAID", "PREPARING", "SHIPPING"];
@@ -203,9 +191,12 @@ function AdminOrders() {
           <h1>회원 주문 · 배송 관리</h1>
           <p>다른 회원의 결제완료 이후 주문을 한 화면에서 조회하고 배송 상태를 변경합니다.</p>
         </div>
-        <button type="button" className="admin-refresh" onClick={load} disabled={loading}>
-          {loading ? "조회 중..." : "↻ 새로고침"}
-        </button>
+        <div className="admin-orders-title-actions">
+          <Link to="/admin" className="admin-back-button">← 관리자센터</Link>
+          <button type="button" className="admin-refresh" onClick={load} disabled={loading}>
+            {loading ? "조회 중..." : "↻ 새로고침"}
+          </button>
+        </div>
       </div>
 
       <section className="admin-summary" aria-label="배송 상태 요약">
@@ -274,6 +265,15 @@ function AdminOrders() {
 
       <div className="admin-orders-table-wrap">
         <table className="admin-orders-table">
+          <colgroup>
+            <col className="col-check" />
+            <col className="col-order" />
+            <col className="col-buyer" />
+            <col className="col-address" />
+            <col className="col-amount" />
+            <col className="col-status" />
+            <col className="col-action" />
+          </colgroup>
           <thead>
             <tr>
               <th className="admin-check-cell">
