@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import bindparam, text
 
 from database import engine
 from security import get_current_user
@@ -13,6 +13,9 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 
 class OrderCreate(BaseModel):
     address_id: int
+    # 장바구니에서 일부 상품만 선택해 주문하는 경우 해당 carts_id 목록을 전달합니다.
+    # 전달하지 않으면(기존 동작) 장바구니 전체를 주문으로 전환합니다.
+    cart_ids: list[int] | None = None
 
 
 def _load_order_items(conn, order_id: int):
@@ -60,7 +63,7 @@ def create_order(payload: OrderCreate, current_user: dict = Depends(get_current_
         if address is None:
             raise HTTPException(status_code=404, detail="선택한 배송지를 찾을 수 없습니다.")
 
-        cart_items = conn.execute(text("""
+        cart_sql = """
             SELECT c.carts_id, c.product_id, c.variant_id, c.quantity,
                    p.product_name, p.product_status, p.sale_price,
                    pv.sku_code, pv.additional_price,
@@ -70,10 +73,19 @@ def create_order(payload: OrderCreate, current_user: dict = Depends(get_current_
             INNER JOIN products p ON p.product_id=c.product_id
             INNER JOIN product_variants pv ON pv.variant_id=c.variant_id AND pv.product_id=c.product_id
             WHERE c.user_id=:user_id AND p.product_status <> 'DELETED' AND pv.active_yn='Y'
-            ORDER BY c.added_at, c.carts_id
-        """), {"user_id": user_id}).mappings().all()
+        """
+        cart_params = {"user_id": user_id}
+        if payload.cart_ids:
+            cart_query = text(cart_sql + " AND c.carts_id IN :cart_ids ORDER BY c.added_at, c.carts_id") \
+                .bindparams(bindparam("cart_ids", expanding=True))
+            cart_params["cart_ids"] = payload.cart_ids
+        else:
+            cart_query = text(cart_sql + " ORDER BY c.added_at, c.carts_id")
+        cart_items = conn.execute(cart_query, cart_params).mappings().all()
         if not cart_items:
             raise HTTPException(status_code=400, detail="장바구니가 비어 있습니다.")
+        if payload.cart_ids and len(cart_items) != len(set(payload.cart_ids)):
+            raise HTTPException(status_code=400, detail="선택한 상품 중 일부를 장바구니에서 찾을 수 없습니다.")
 
         product_amount = 0
         prepared = []
@@ -138,6 +150,14 @@ def create_order(payload: OrderCreate, current_user: dict = Depends(get_current_
                 "unit_price": item["unit_price"],
                 "item_amount": item["item_amount"],
             })
+
+        # 주문서로 변환된 상품은 장바구니에서 제거합니다(부분 선택 주문 시 나머지는 남겨둡니다).
+        ordered_cart_ids = [item["carts_id"] for item in prepared]
+        conn.execute(
+            text("DELETE FROM t5_carts WHERE user_id=:user_id AND carts_id IN :cart_ids")
+                .bindparams(bindparam("cart_ids", expanding=True)),
+            {"user_id": user_id, "cart_ids": ordered_cart_ids},
+        )
 
     return {
         "message": "주문서가 생성되었습니다. 아직 결제 전 상태입니다.",

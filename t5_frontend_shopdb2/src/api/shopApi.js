@@ -27,7 +27,16 @@ async function request(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  let response;
+  try {
+    response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch {
+    // 서버가 꺼져있거나 네트워크가 끊긴 경우 fetch 자체가 예외를 던집니다.
+    // "Failed to fetch" 같은 개발자용 문구를 그대로 보여주지 않고, 사용자가 이해할 수 있는 메시지로 바꿉니다.
+    const networkError = new Error("서버에 연결할 수 없습니다. 인터넷 연결을 확인하거나 잠시 후 다시 시도해주세요.");
+    networkError.isNetworkError = true;
+    throw networkError;
+  }
 
   if (!response.ok) {
     let message = "요청 처리 중 오류가 발생했습니다.";
@@ -37,7 +46,9 @@ async function request(path, options = {}) {
     } catch {
       // JSON이 아닌 오류 응답은 기본 메시지를 사용합니다.
     }
-    throw new Error(message);
+    const httpError = new Error(message);
+    httpError.status = response.status;
+    throw httpError;
   }
 
   if (response.status === 204) return null;
@@ -200,8 +211,10 @@ export async function deleteAddress(addressId) {
 }
 export async function withdrawMember() { return request("/mypage/withdraw", { method: "PATCH" }); }
 
-export async function createOrder(addressId) {
-  return request("/orders", { method: "POST", body: JSON.stringify({ address_id: addressId }) });
+export async function createOrder(addressId, cartIds) {
+  const body = { address_id: addressId };
+  if (Array.isArray(cartIds) && cartIds.length) body.cart_ids = cartIds;
+  return request("/orders", { method: "POST", body: JSON.stringify(body) });
 }
 
 // -------------------- 개발용 결제 --------------------

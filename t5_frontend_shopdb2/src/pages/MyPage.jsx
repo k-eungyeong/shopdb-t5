@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createAddress, deleteAddress, getAddresses, getProfile, setDefaultAddress, updateAddress, updateProfile, withdrawMember } from "../api/shopApi";
 import { useAuth } from "../auth/AuthContext";
+import ErrorState from "../components/ErrorState";
 import "./MyPage.css";
 
 const emptyAddress = { address_name:"", receiver_name:"", receiver_phone:"", zipcode:"", address1:"", address2:"", default_yn:"N" };
@@ -55,7 +56,8 @@ function MyPage() {
 
   return <div className="mypage"><div className="shop-list-page__title"><span>MY PAGE</span><h1>마이페이지</h1><p>회원정보와 배송지를 관리합니다.</p></div>
     <div className="mypage__quick"><Link to="/mypage/orders">주문 내역</Link><Link to="/mypage/reviews">내 리뷰</Link><Link to="/mypage/password">비밀번호 변경</Link><Link to="/wishlist">찜 목록</Link></div>
-    {message && <div className="mypage__message">{message}</div>}{error && <div className="shop-state shop-state--error">{error}</div>}
+    {message && <div className="mypage__message">{message}</div>}
+    <ErrorState message={error} onRetry={load} />
 
     <section className="mypage__section"><h2>내 정보</h2><form className="mypage__form" onSubmit={saveProfile}>
       <label>이름<input value={profile.user_name} onChange={(e)=>setProfile({...profile,user_name:e.target.value})} required /></label>

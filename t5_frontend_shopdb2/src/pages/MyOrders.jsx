@@ -1,20 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { completeOrder, createReview, getOrders } from "../api/shopApi";
+import { money, statusText } from "../utils/format";
+import ErrorState from "../components/ErrorState";
+import EmptyState from "../components/EmptyState";
+import { ListSkeleton } from "../components/Skeleton";
 import "./Orders.css";
-
-const money = (v) => Number(v || 0).toLocaleString("ko-KR") + "원";
-const statusText = {
-  ORDERED: "주문완료",
-  PAYMENT_PENDING: "결제대기",
-  PAID: "결제완료",
-  PREPARING: "상품준비중",
-  SHIPPING: "배송중",
-  DELIVERED: "배송완료",
-  COMPLETED: "구매완료",
-  CANCELLED: "취소",
-  REFUNDED: "환불",
-};
 
 const deliverySteps = [
   { key: "PAID", label: "결제완료" },
@@ -66,6 +57,7 @@ function MyOrders() {
   const [reviewTxt, setReviewTxt] = useState("");
   const [processingOrderId, setProcessingOrderId] = useState(null);
   const [trackingOrderId, setTrackingOrderId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   async function load() {
     try {
@@ -74,6 +66,8 @@ function MyOrders() {
       setError("");
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -127,13 +121,14 @@ function MyOrders() {
         <p>판매자 또는 관리자가 배송완료로 변경하면 구매한 상품의 리뷰를 바로 작성할 수 있습니다.</p>
       </div>
 
-      {error && <div className="shop-state shop-state--error">{error}</div>}
-      {!error && orders.length === 0 && (
-        <div className="empty-state"><h2>주문 내역이 없습니다</h2></div>
+      <ErrorState message={error} onRetry={load} />
+      {loading && <ListSkeleton count={3} />}
+      {!loading && !error && orders.length === 0 && (
+        <EmptyState icon="◉" title="주문 내역이 없습니다" description="상품을 주문하면 이곳에서 진행 상황을 확인할 수 있어요." actionTo="/" actionLabel="상품 보러가기" />
       )}
 
       <div className="orders-list">
-        {orders.map((order) => {
+        {!loading && orders.map((order) => {
           const isTrackingOpen = trackingOrderId === order.order_id;
 
           return (

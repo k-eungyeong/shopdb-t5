@@ -6,10 +6,8 @@ import {
   getSellerReviews, getSellerSettlement, updateSellerProduct, updateSellerShippingStatus,
   updateSellerVariant,
 } from "../api/shopApi";
+import { money, statusText } from "../utils/format";
 import "./Center.css";
-
-const money=v=>`${Number(v||0).toLocaleString("ko-KR")}원`;
-const statusText={PAID:"결제완료",PREPARING:"상품준비중",SHIPPING:"배송중",DELIVERED:"배송완료",COMPLETED:"구매완료"};
 const tabs=[["dashboard","▦","대시보드"],["products","📦","상품·재고"],["orders","🚚","주문·배송"],["settlement","₩","정산"],["cs","💬","고객문의"],["reviews","★","구매리뷰"]];
 
 function SellerCenter(){

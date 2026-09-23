@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom";
+import { money } from "../utils/format";
 import "./ProductCard.css";
-
-function formatPrice(price) {
-  return Number(price || 0).toLocaleString("ko-KR") + "원";
-}
 
 function ProductCard({ product }) {
   const regular = Number(product.regular_price || 0);
@@ -23,9 +20,9 @@ function ProductCard({ product }) {
         <p className="product-card__desc">{product.short_description}</p>
         <div className="product-card__price">
           {hasDiscount && <span className="product-card__discount">{discountRate}%</span>}
-          <span className="product-card__sale-price">{formatPrice(sale)}</span>
+          <span className="product-card__sale-price">{money(sale)}</span>
         </div>
-        {hasDiscount && <p className="product-card__regular-price">{formatPrice(regular)}</p>}
+        {hasDiscount && <p className="product-card__regular-price">{money(regular)}</p>}
         <div className="product-card__meta">
           <span>★ {Number(product.avg_rating || 0).toFixed(1)}</span>
           <span>리뷰 {product.review_count || 0}</span>
